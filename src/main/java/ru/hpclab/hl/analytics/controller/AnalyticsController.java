@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.hpclab.hl.analytics.model.DownloadStatistics;
 import ru.hpclab.hl.analytics.service.AnalyticsService;
-
+import java.util.Map;
 import java.util.List;
 
 @RestController
@@ -19,7 +19,12 @@ public class AnalyticsController {
     }
 
     @GetMapping("/university-statistics")
-    public ResponseEntity<List<DownloadStatistics>> getUniversityDownloadStatistics() {
+    public ResponseEntity<Map<String, Map<String, Map<String, Long>>>> getUniversityDownloadStatistics() {
         return ResponseEntity.ok(analyticsService.getUniversityDownloadStatistics());
     }
+
+//    @GetMapping("/university-statistics")
+//    public ResponseEntity<List<DownloadStatistics>> getUniversityDownloadStatistics() {
+//        return ResponseEntity.ok(analyticsService.getUniversityDownloadStatistics());
+//    }
 } 

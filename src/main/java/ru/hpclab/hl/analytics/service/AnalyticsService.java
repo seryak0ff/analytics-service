@@ -24,7 +24,7 @@ public class AnalyticsService {
         this.module1Client = module1Client;
     }
 
-    public List<DownloadStatistics> getUniversityDownloadStatistics() {
+    public Map<String, Map<String, Map<String, Long>>> getUniversityDownloadStatistics() {
         List<Download> downloads = module1Client.getAllDownloads();
         Map<String, Map<String, Map<String, Long>>> result = new TreeMap<>();
 
@@ -34,18 +34,38 @@ public class AnalyticsService {
             String university = user != null ? user.getUniversity() : "Unknown";
             String format = download.getFormat().name();
 
-            result.computeIfAbsent(monthName, k -> new HashMap<>())
+            result
+                    .computeIfAbsent(monthName, k -> new HashMap<>())
                     .computeIfAbsent(university, k -> new HashMap<>())
                     .merge(format, 1L, Long::sum);
         }
 
-        List<DownloadStatistics> statistics = new ArrayList<>();
-        result.forEach((month, universityData) ->
-                universityData.forEach((university, formatCounts) ->
-                        statistics.add(new DownloadStatistics(month, university, formatCounts))
-                )
-        );
-
-        return statistics;
+        return result;
     }
+
+
+//    public List<DownloadStatistics> getUniversityDownloadStatistics() {
+//        List<Download> downloads = module1Client.getAllDownloads();
+//        Map<String, Map<String, Map<String, Long>>> result = new TreeMap<>();
+//
+//        for (Download download : downloads) {
+//            String monthName = download.getDownloadDate().getMonth().name();
+//            User user = module1Client.getUser(download.getUserId());
+//            String university = user != null ? user.getUniversity() : "Unknown";
+//            String format = download.getFormat().name();
+//
+//            result.computeIfAbsent(monthName, k -> new HashMap<>())
+//                    .computeIfAbsent(university, k -> new HashMap<>())
+//                    .merge(format, 1L, Long::sum);
+//        }
+//
+//        List<DownloadStatistics> statistics = new ArrayList<>();
+//        result.forEach((month, universityData) ->
+//                universityData.forEach((university, formatCounts) ->
+//                        statistics.add(new DownloadStatistics(month, university, formatCounts))
+//                )
+//        );
+//
+//        return statistics;
+//    }
 } 
