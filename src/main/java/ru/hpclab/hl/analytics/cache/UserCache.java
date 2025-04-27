@@ -9,19 +9,20 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
+// кэш сервис универсальность
 @Component
 public class UserCache {
     private final Map<UUID, User> cache = new HashMap<>();
-    private final AtomicLong hits = new AtomicLong(0);
-    private final AtomicLong misses = new AtomicLong(0);
+    private Long hits = 0L;
+    private Long misses = 0L;
 
     public User get(UUID userId) {
         User user = cache.get(userId);
         if (user != null) {
-            hits.incrementAndGet();
+            hits++;
             return user;
         }
-        misses.incrementAndGet();
+        misses++;
         return null;
     }
 
@@ -37,14 +38,14 @@ public class UserCache {
         return cache.size();
     }
 
-    @Scheduled(fixedRateString = "${cache.stats.print.interval:30000}") // По умолчанию 60 секунд
+    @Scheduled(fixedRateString = "${cache.stats.print.interval:10000}") // По умолчанию 10 секунд
     public void printStats() {
         System.out.println("User Cache Stats:");
         System.out.println("Size: " + size());
-        System.out.println("Hits: " + hits.get());
-        System.out.println("Misses: " + misses.get());
+        System.out.println("Hits: " + hits);
+        System.out.println("Misses: " + misses);
         System.out.println("Hit rate: " +
-                (hits.get() + misses.get() > 0 ?
-                        (double) hits.get() / (hits.get() + misses.get()) : 0));
+                (hits + misses > 0 ?
+                        (double) hits / (hits + misses) : 0));
     }
 }

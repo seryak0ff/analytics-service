@@ -30,7 +30,7 @@ public class AnalyticsService {
     }
 
     public Map<String, Map<String, Map<String, Long>>> getUniversityDownloadStatistics() {
-        List<Download> downloads = module1Client.getAllDownloads();
+        List<Download> downloads = module1Client.getAllDownloads(); // TODO Стрим
         Map<String, Map<String, Map<String, Long>>> result = new TreeMap<>();
 
         for (Download download : downloads) {
