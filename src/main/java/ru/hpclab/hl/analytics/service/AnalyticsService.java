@@ -7,6 +7,7 @@ import ru.hpclab.hl.analytics.model.Download;
 import ru.hpclab.hl.analytics.model.DownloadStatistics;
 import ru.hpclab.hl.analytics.model.User;
 import ru.hpclab.hl.analytics.cache.UserCache;
+import ru.hpclab.hl.analytics.service.statistics.ObservabilityService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,21 +22,28 @@ import java.util.UUID;
 public class AnalyticsService {
     private final Module1Client module1Client;
     private final UserCache userCache;
+    private final ObservabilityService observabilityService;
+
     @Autowired
     private ObjectMapper objectMapper;
 
-    public AnalyticsService(Module1Client module1Client, UserCache userCache) {
+    public AnalyticsService(ObservabilityService observabilityService, Module1Client module1Client, UserCache userCache) {
+        this.observabilityService = observabilityService;
         this.module1Client = module1Client;
         this.userCache = userCache;
     }
 
     public Map<String, Map<String, Map<String, Long>>> getUniversityDownloadStatistics() {
+        this.observabilityService.start(getClass().getSimpleName() + ":getUniversityDownloadStatistics");
         List<Download> downloads = module1Client.getAllDownloads(); // TODO Стрим
         Map<String, Map<String, Map<String, Long>>> result = new TreeMap<>();
 
         for (Download download : downloads) {
             String monthName = download.getDownloadDate().getMonth().name();
             UUID userId = download.getUserId();
+
+//            User user = module1Client.getUser(download.getUserId());
+
             User user = userCache.get(userId);
 
             if (user == null) {
@@ -53,7 +61,7 @@ public class AnalyticsService {
                     .computeIfAbsent(university, k -> new HashMap<>())
                     .merge(format, 1L, Long::sum);
         }
-
+        this.observabilityService.stop(getClass().getSimpleName() + ":getUniversityDownloadStatistics");
         return result;
     }
 }
